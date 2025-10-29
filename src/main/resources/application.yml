@@ -7,22 +7,39 @@ spring:
   main:
     allow-circular-references: true
   datasource:
-    druid:
-      driver-class-name: ${sky.datasource.driver-class-name}
-      url: ${sky.datasource.url}
-      username: ${sky.datasource.username}
-      password: ${sky.datasource.password}
-  data:
-    redis:
-      host: ${sky.redis.host}
-      port: ${sky.redis.port}
-      password: ${sky.redis.password}
-      database: ${sky.redis.database}
+    # 建议使用标准的 spring.datasource 键名
+    # Druid starter 会自动识别它们
+    driver-class-name: ${zht.classmanager.datasource.driver-class-name}
+    url: ${zht.classmanager.datasource.url}
+    username: ${zht.classmanager.datasource.username}
+    password: ${zht.classmanager.datasource.password}
+    # druid:  <-- (Druid的特定配置可以放这里，但连接信息建议放外面)
+  #  data:
+  #    redis:
+  #      host: ${sky.redis.host}
+  #      port: ${sky.redis.port}
+  #      password: ${sky.redis.password}
+  #      database: ${sky.redis.database}
+
 
 mybatis:
-  #mapper????
   mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: com.sky.entity
+  type-aliases-package: com.zht.newclassmanager.pojo
   configuration:
-    #??????
     map-underscore-to-camel-case: true
+
+zht:
+  jwt:
+    # 管理员端
+    # 设置jwt签名加密时使用的秘钥
+    admin-secret-key: manager
+    # 设置jwt过期时间
+    admin-ttl: 7200000
+    # 设置前端传递过来的令牌名称
+    admin-token-name: token
+
+    # 用户端
+    user-secret-key: student
+    user-token-name: token
+    user-ttl: 7200000
+

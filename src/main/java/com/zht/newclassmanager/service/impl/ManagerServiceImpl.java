@@ -2,7 +2,9 @@ package com.zht.newclassmanager.service.impl;
 
 import com.zht.newclassmanager.pojo.*;
 import com.zht.newclassmanager.pojo.DTO.InsertCourseDTO;
+import com.zht.newclassmanager.pojo.DTO.SearchCourseDTO;
 import com.zht.newclassmanager.pojo.DTO.UpdateCourseDTO;
+import com.zht.newclassmanager.pojo.VO.CourseSelectedVO;
 import com.zht.newclassmanager.service.ManagerService;
 import com.zht.newclassmanager.mapper.*;
 import org.springframework.beans.BeanUtils;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -33,8 +36,15 @@ public class ManagerServiceImpl implements ManagerService {
     }
 
     @Override
-    public List<CourseSelected> showCourseSelected(Integer student_id,Integer course_id) {
-        return managerMapper.selectCourseSelectedById(student_id,course_id);
+    public List<CourseSelectedVO> showCourseSelected(Integer student_id, Integer course_id) {
+        List<CourseSelected> relations = managerMapper.selectCourseSelectedById(student_id, course_id);
+        List<CourseSelectedVO> result = new ArrayList<>();
+        relations.forEach(item -> {
+            CourseSelectedVO courseSelectedVO = new CourseSelectedVO();
+            BeanUtils.copyProperties(courseSelectedVO,item);
+            result.add(courseSelectedVO);
+        });
+        return result;
     }
 
     @Override
@@ -48,7 +58,11 @@ public class ManagerServiceImpl implements ManagerService {
     }
 
     @Override
-    public List<Course> searchCourse(Integer course_id, String course_name, String course_teacher) {
+    public List<Course> searchCourse(SearchCourseDTO searchCourseDTO) {
+        Integer course_id = searchCourseDTO.getCourse_id();
+        String course_name = searchCourseDTO.getCourse_name();
+        String course_teacher = searchCourseDTO.getCourse_teacher();
+
         return courseMapper.selectForManager(course_id,course_name,course_teacher);
     }
 

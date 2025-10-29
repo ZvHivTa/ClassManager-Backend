@@ -1,134 +1,85 @@
 package com.zht.newclassmanager.contoller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+
+import com.zht.newclassmanager.context.BaseContext;
 import com.zht.newclassmanager.pojo.*;
 import com.zht.newclassmanager.pojo.DTO.InsertCourseDTO;
+import com.zht.newclassmanager.pojo.DTO.SearchCourseDTO;
 import com.zht.newclassmanager.pojo.DTO.UpdateCourseDTO;
+import com.zht.newclassmanager.pojo.VO.CourseSelectedVO;
 import com.zht.newclassmanager.result.Result;
 import com.zht.newclassmanager.service.ManagerService;
-import com.zht.utils.toInteger;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-@Controller
-@RequestMapping("/management")
+@Tag(name = "管理员")
+@RestController
+@RequestMapping("/manager")
 public class ManagerController {
 
     @Autowired
     ManagerService managerService;
 
     @GetMapping("/info")
-    public String manager_info_action(HttpSession session,
-                                      HttpServletResponse response,
-                                      @CookieValue(name="account",required = false) String account){
-        User user = null;
-        if(account!=null){
-            user = new User(Integer.parseInt(account),null);
-        }else{
-            user = (User) session.getAttribute("MANAGER_SESSION");
-        }
-        Manager manager = managerService.showManagerInfo(user.getAccount());
-        Cookie cookie = new Cookie("manager_name",manager.getManager_name());
-        //默认跨域的cookie不能相互访问
-        cookie.setPath("/");
-        response.addCookie(cookie);
-        return JSON.toJSONString(manager);
+    @Operation(description = "获取管理员个人信息")
+    public Result<Manager> manager_info_action(){
+        //TODO 从ThreadLocal中获取信息
+        Integer currentId = BaseContext.getCurrentId();
+        Manager manager = managerService.showManagerInfo(currentId);
+        return Result.success(manager);
     }
 
     @GetMapping("/course_selected")
-    public String search_course_selected_info_action(@RequestBody String responseBody){
+    @Operation(description = "查看学生已选课程")
+    public Result<List<CourseSelectedVO>> search_course_selected_info_action(CourseSelected courseSelected){
 
-        JSONObject responseJson = JSON.parseObject(responseBody, JSONObject.class);
-        Integer student_id = null;
-        Integer course_id = null;
-        String student_id_string =  responseJson.getString("student_id_for_course_search");
-        String course_id_string = responseJson.getString("course_id_for_course_search");
-
-        if(!(student_id_string.equals("")||student_id_string.equals("0"))){
-            student_id = Integer.parseInt(responseJson.getString("student_id_for_course_search"));
-        }
-        if(!(course_id_string.equals("")||course_id_string.equals("0"))){
-            course_id = Integer.parseInt(responseJson.getString("course_id_for_course_search"));
-        }
-        //TODO: 返回数据格式修改
-        List<CourseSelected> list= managerService.showCourseSelected(student_id,course_id);
-
-        StringBuffer sb = new StringBuffer();
-        sb.append("[");
-        for (CourseSelected cs: list) {
-            //{"course_id":1006,"course_name":"���˼����ԭ��","course_teacher":"�����"
-            String course = JSON.toJSONString(cs.getCourse()).replace("}","");
-            //,"student_id":2019000000,"student_name":"����"}
-            String student = JSON.toJSONString(cs.getStudent()).replace("{",",");
-            sb.append(course);
-            sb.append(student);
-            sb.append(",");
-        }
-        if(sb.length()>1) {
-            sb.deleteCharAt(sb.length() - 1);
-        }
-        sb.append("]");
-        return sb.toString();
+        List<CourseSelectedVO> list= managerService.showCourseSelected(courseSelected.getStudent_id(),courseSelected.getCourse_id());
+        return Result.success(list);
     }
 
 
     @GetMapping("/load_subject")
-    public String load_subject_action(){
+    @Operation(description = "查询学科")
+    public Result<List<Subject>> load_subject_action(){
         List<Subject> subjects = managerService.selectAllSubjects();
-        return JSON.toJSONString(subjects);
+        return Result.success(subjects);
     }
 
 
     @GetMapping("/search_course")
-    public String search_course_action(@RequestBody String requestBody){
-        JSONObject responseJson = JSON.parseObject(requestBody, JSONObject.class);
-        String course_id_string = responseJson.getString("course_id");
-        String course_name = responseJson.getString("course_name");
-        String course_teacher = responseJson.getString("course_teacher");
-        Integer course_id = null;
-        if(!(course_id_string.equals("")||course_id_string.equals("0"))){
-            course_id = Integer.parseInt(course_id_string);
-        }
-        if(course_name.equals("")){
-            course_name = null;
-        }
-        if(course_teacher.equals("")){
-            course_teacher = null;
-        }
+    @Operation(description = "查询课程信息")
+    public Result<List<Course>> search_course_action(SearchCourseDTO searchCourseDTO){
 
-
-        List<Course> courses =  managerService.searchCourse(course_id,course_name,course_teacher);
-
-        return JSON.toJSONString(courses);
+        List<Course> courses =  managerService.searchCourse(searchCourseDTO);
+        return Result.success(courses);
     }
 
     @PostMapping("/select_course")
-    public String select_course_action(CourseSelected courseSelected){
+    @Operation(description = "增加特定选课记录")
+    public Result select_course_action(CourseSelected courseSelected){
         Integer result = managerService.chooseCourseForStudent(
                 courseSelected.getStudent_id(),
-                courseSelected.getCourse_id());
-
-        return JSON.toJSONString(result);
-    }
-
-    @PutMapping("/update_course")
-
-    public Result update_course_action(UpdateCourseDTO updateCourseDTO){
-
-        Integer result = managerService.updateCourse(updateCourseDTO);
+                courseSelected.getCourse_id()
+        );
 
         return Result.success();
     }
 
+    @PutMapping("/update_course")
+    @Operation(description = "更新课程信息")
+    public Result update_course_action(UpdateCourseDTO updateCourseDTO){
+
+        Integer result = managerService.updateCourse(updateCourseDTO);
+        return Result.success();
+    }
+
     @PutMapping("/insert_course")
+    @Operation(description = "新增课程")
     public Result insert_course_action(InsertCourseDTO insertCourseDTO){
        /*{"course_id":"1201",
        "course_name":"�ߵ���ѧ",
@@ -148,6 +99,7 @@ public class ManagerController {
     }
 
     @DeleteMapping("/remove_chosen_course")
+    @Operation(description = "删除特定选课记录")
     public Result remove_chosen_course_action(CourseSelected courseSelected){
         Integer result =  managerService.removeSelectedCourse(
                 courseSelected.getStudent_id(),
@@ -157,6 +109,7 @@ public class ManagerController {
 
 
     @DeleteMapping("/remove_course")
+    @Operation(description = "删除课程")
     public Result remove_course_action(Integer course_id){
         Integer result =  managerService.removeCourse(course_id);
         return Result.success();

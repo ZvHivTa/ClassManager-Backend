@@ -8,9 +8,10 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 //控制侧边导航栏跳转的页面控制器
-@Controller
+@RestController
 public class PageController {
     @RequestMapping("/")
     public String jump_to_login_action(){

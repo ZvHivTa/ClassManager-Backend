@@ -3,8 +3,8 @@
         PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.zht.mapper.StudentMapper">
-    <select id="selectById" parameterType="int" resultType="com.zht.pojo.Student">
+<mapper namespace="com.zht.newclassmanager.mapper.StudentMapper">
+    <select id="selectById" parameterType="int" resultType="com.zht.newclassmanager.pojo.Student">
         select student_id,student_name,student_grade,subject_name,college_name
         from student s
             join subject sub on s.subject_id = sub.subject_id

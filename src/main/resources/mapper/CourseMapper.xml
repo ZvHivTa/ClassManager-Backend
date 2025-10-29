@@ -3,8 +3,8 @@
         PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.zht.mapper.CourseMapper">
-    <select id="selectForSuggestion" parameterType="com.zht.pojo.Student" resultType="com.zht.pojo.Course">
+<mapper namespace="com.zht.newclassmanager.mapper.CourseMapper">
+    <select id="selectForSuggestion" parameterType="com.zht.newclassmanager.pojo.Student" resultType="com.zht.newclassmanager.pojo.Course">
         SELECT
             ANY_VALUE(c.course_id) as course_id,
             ANY_VALUE(course_name) as course_name,
@@ -22,7 +22,7 @@
         GROUP BY c.course_id
     </select>
 
-    <select id="selectForOptional" parameterType="int" resultType="com.zht.pojo.Course">
+    <select id="selectForOptional" parameterType="int" resultType="com.zht.newclassmanager.pojo.Course">
         SELECT
             ANY_VALUE(c.course_id) as course_id,
             ANY_VALUE(course_name) as course_name,
@@ -38,7 +38,7 @@
         WHERE c.course_type = #{course_type}
         GROUP BY c.course_id
     </select>
-    <select id="selectForChosen" parameterType="int" resultType="com.zht.pojo.Course">
+    <select id="selectForChosen" parameterType="int" resultType="com.zht.newclassmanager.pojo.Course">
         SELECT
             ANY_VALUE(c.course_id) as course_id,
             ANY_VALUE(course_name) as course_name,
@@ -60,7 +60,7 @@
     </select>
 
 
-    <select id="selectForManager" resultType="com.zht.pojo.Course">
+    <select id="selectForManager" resultType="com.zht.newclassmanager.pojo.Course">
         SELECT
             c.course_id,
             course_name,
@@ -117,7 +117,7 @@
         </trim>
         WHERE c.course_id = #{course_id}
     </update>
-    <insert id="insertCourse" parameterType="com.zht.pojo.Course">
+    <insert id="insertCourse" parameterType="com.zht.newclassmanager.pojo.Course">
         INSERT INTO course
         values(
                   #{course_id},

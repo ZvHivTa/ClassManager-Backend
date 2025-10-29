@@ -3,20 +3,20 @@
         PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.zht.mapper.ManagerMapper">
-    <resultMap id="courseSelectedResultMap" type="com.zht.pojo.CourseSelected">
-        <association property="course" javaType="com.zht.pojo.Course">
+<mapper namespace="com.zht.newclassmanager.mapper.ManagerMapper">
+    <resultMap id="courseSelectedResultMap" type="com.zht.newclassmanager.pojo.CourseSelected">
+        <association property="course" javaType="com.zht.newclassmanager.pojo.Course">
             <id property="course_id" column="course_id"></id>
             <result property="course_name" column="course_name"></result>
             <result property="course_teacher" column="course_teacher"></result>
         </association>
-        <association property="student" javaType="com.zht.pojo.Student">
+        <association property="student" javaType="com.zht.newclassmanager.pojo.Student">
             <id property="student_id" column="student_id"></id>
             <result property="student_name" column="student_name"></result>
         </association>
     </resultMap>
 
-    <select id="selectById" resultType="com.zht.pojo.Manager">
+    <select id="selectById" resultType="com.zht.newclassmanager.pojo.Manager">
         SELECT manager_id,manager_name,college_name
         FROM manager m
              JOIN college c on m.college_id = c.college_id

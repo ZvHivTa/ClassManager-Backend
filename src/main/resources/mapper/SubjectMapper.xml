@@ -3,8 +3,8 @@
         PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.zht.mapper.SubjectMapper">
-    <select id="selectAllSubjects" resultType="com.zht.pojo.Subject">
+<mapper namespace="com.zht.newclassmanager.mapper.SubjectMapper">
+    <select id="selectAllSubjects" resultType="com.zht.newclassmanager.pojo.Subject">
         select subject_id,subject_name
         from subject
     </select>

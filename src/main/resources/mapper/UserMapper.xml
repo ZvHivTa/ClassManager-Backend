@@ -3,8 +3,8 @@
         PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.zht.mapper.UserMapper">
-    <select id="selectUser" resultType="com.zht.pojo.User" parameterType="com.zht.pojo.User">
+<mapper namespace="com.zht.newclassmanager.mapper.UserMapper">
+    <select id="selectUser" resultType="com.zht.newclassmanager.pojo.User" parameterType="com.zht.newclassmanager.pojo.User">
         select account,password,type
         from user
         where account = #{account} and password = #{password}
