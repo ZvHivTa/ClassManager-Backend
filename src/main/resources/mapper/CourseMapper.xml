@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zht.mapper.CourseMapper">
+    <select id="selectForSuggestion" parameterType="com.zht.pojo.Student" resultType="com.zht.pojo.Course">
+        SELECT
+            ANY_VALUE(c.course_id) as course_id,
+            ANY_VALUE(course_name) as course_name,
+            ANY_VALUE(course_teacher) as course_teacher,
+            ANY_VALUE(course_type) as course_type,
+            ANY_VALUE(course_time) as course_time,
+            ANY_VALUE(course_place) as course_place,
+            ANY_VALUE(course_capacity) as course_capacity,
+            COUNT(cs.course_id) as course_chosen_number
+        FROM `course` c
+                 join `student` s on s.student_grade = c.course_grade and s.subject_id = c.subject_id
+                 left outer join `course_arrangement` ca on c.course_id = ca.course_id
+                 left outer join `course_selected` cs on c.course_id = cs.course_id
+        WHERE s.student_id = #{student_id}
+        GROUP BY c.course_id
+    </select>
+
+    <select id="selectForOptional" parameterType="int" resultType="com.zht.pojo.Course">
+        SELECT
+            ANY_VALUE(c.course_id) as course_id,
+            ANY_VALUE(course_name) as course_name,
+            ANY_VALUE(course_teacher) as course_teacher,
+            ANY_VALUE(course_type) as course_type,
+            ANY_VALUE(course_time) as course_time,
+            ANY_VALUE(course_place) as course_place,
+            ANY_VALUE(course_capacity) as course_capacity,
+            COUNT(cs.course_id) as course_chosen_number
+        FROM `course` c
+                 left outer join `course_arrangement` ca on c.course_id = ca.course_id
+                 left outer join `course_selected` cs on c.course_id = cs.course_id
+        WHERE c.course_type = #{course_type}
+        GROUP BY c.course_id
+    </select>
+    <select id="selectForChosen" parameterType="int" resultType="com.zht.pojo.Course">
+        SELECT
+            ANY_VALUE(c.course_id) as course_id,
+            ANY_VALUE(course_name) as course_name,
+            ANY_VALUE(course_teacher) as course_teacher,
+            ANY_VALUE(course_type) as course_type,
+            ANY_VALUE(course_time) as course_time,
+            ANY_VALUE(course_place) as course_place,
+            ANY_VALUE(course_capacity) as course_capacity,
+            ANY_VALUE(s.student_id) as student_id,
+            COUNT(cs.course_id) as course_chosen_number
+        FROM `course` c
+
+                 left outer join `course_arrangement` ca on c.course_id = ca.course_id
+                 left outer join `course_selected` cs on c.course_id = cs.course_id
+                 join `student` s on s.student_id = cs.student_id
+
+        GROUP BY cs.course_id
+        HAVING student_id = #{student_id}
+    </select>
+
+
+    <select id="selectForManager" resultType="com.zht.pojo.Course">
+        SELECT
+            c.course_id,
+            course_name,
+            course_teacher,
+            course_type,
+            course_time,
+            course_place,
+            course_grade,
+            course_capacity,
+            subject_id
+        FROM
+            course c
+                LEFT JOIN course_arrangement cs ON c.course_id = cs.course_id
+        <where>
+            <if test="course_id!=null">
+                and c.course_id = #{course_id}
+            </if>
+            <if test="course_name!=null">
+                <bind name="course_name_bind" value="'%'+course_name+'%'"/>
+                and course_name like #{course_name_bind}
+            </if>
+            <if test="course_teacher!=null">
+                <bind name="course_teacher_bind" value="'%'+course_teacher+'%'"/>
+                and course_teacher like #{course_teacher_bind}
+            </if>
+        </where>
+    </select>
+
+    <delete id="removeCourse">
+        DELETE
+        FROM course
+        WHERE course_id = ${course_id}
+
+    </delete>
+
+    <update id="updateCourse">
+        UPDATE course c
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="course_name!=null">
+                c.course_name = #{course_name},
+            </if>
+            <if test="course_teacher!=null">
+                c.course_teacher = #{course_teacher},
+            </if>
+            <if test="course_type!=null">
+                c.course_type = #{course_type},
+            </if>
+            <if test="subject_id!=null">
+                c.subject_id = #{subject_id},
+            </if>
+            <if test="course_grade!=null">
+                c.course_grade = #{course_grade},
+            </if>
+        </trim>
+        WHERE c.course_id = #{course_id}
+    </update>
+    <insert id="insertCourse" parameterType="com.zht.pojo.Course">
+        INSERT INTO course
+        values(
+                  #{course_id},
+                  #{course_name},
+                  #{course_teacher},
+                  #{course_type},
+                  #{subject_id},
+                  #{course_grade}
+              )
+    </insert>
+    <select id="selectFromCourseArrangment" resultType="int">
+        SELECT course_id
+        FROM course_arrangement
+        WHERE course_id = #{course_id}
+    </select>
+    <update id="updateCourseArrangment">
+        UPDATE course_arrangement cs
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="course_time!=null">
+                cs.course_time = #{course_time},
+            </if>
+            <if test="course_place!=null">
+                cs.course_place = #{course_place},
+            </if>
+            <if test="course_capacity!=null">
+                cs.course_capacity = #{course_capacity},
+            </if>
+        </trim>
+        WHERE cs.course_id = #{course_id}
+    </update>
+    <insert id="insertIntoCourseArrangment">
+        INSERT INTO course_arrangement
+        values(
+                  #{course_id},
+                  #{course_time},
+                  #{course_place},
+                  #{course_capacity}
+              )
+    </insert>
+
+
+
+
+</mapper>

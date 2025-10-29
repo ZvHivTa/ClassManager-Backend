@@ -1,0 +1,6 @@
+sky:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://43.153.205.189:3306/db_classmanager
+    username: remotezht
+    password: zht12345678@

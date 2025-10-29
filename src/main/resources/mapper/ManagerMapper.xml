@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zht.mapper.ManagerMapper">
+    <resultMap id="courseSelectedResultMap" type="com.zht.pojo.CourseSelected">
+        <association property="course" javaType="com.zht.pojo.Course">
+            <id property="course_id" column="course_id"></id>
+            <result property="course_name" column="course_name"></result>
+            <result property="course_teacher" column="course_teacher"></result>
+        </association>
+        <association property="student" javaType="com.zht.pojo.Student">
+            <id property="student_id" column="student_id"></id>
+            <result property="student_name" column="student_name"></result>
+        </association>
+    </resultMap>
+
+    <select id="selectById" resultType="com.zht.pojo.Manager">
+        SELECT manager_id,manager_name,college_name
+        FROM manager m
+             JOIN college c on m.college_id = c.college_id
+        WHERE manager_id = #{manager_id}
+    </select>
+
+    <select id="selectCourseSelectedById" resultMap="courseSelectedResultMap">
+        SELECT c.course_id,c.course_name,c.course_teacher,s.student_id,s.student_name
+        FROM course_selected cs
+                 JOIN course c ON c.course_id = cs.course_id
+                 JOIN student s ON s.student_id = cs.student_id
+        <where>
+            <if test="student_id!=null">
+                and s.student_id = ${student_id}
+            </if>
+            <if test="course_id!=null">
+                and c.course_id = ${course_id}
+            </if>
+        </where>
+
+    </select>
+
+    <delete id="removeSelectedCourse">
+        delete from course_selected
+        where student_id = #{student_id} and course_id = #{course_id}
+    </delete>
+
+
+
+</mapper>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zht.mapper.StudentMapper">
+    <select id="selectById" parameterType="int" resultType="com.zht.pojo.Student">
+        select student_id,student_name,student_grade,subject_name,college_name
+        from student s
+            join subject sub on s.subject_id = sub.subject_id
+            join college c on sub.college_id = c.college_id
+        where student_id = #{id}
+    </select>
+
+    <insert id="insertIntoCourseSelected">
+        insert into course_selected values (#{student_id},#{course_id})
+    </insert>
+
+    <delete id="deleteFromCourseSelected">
+        delete from course_selected
+        where student_id = #{student_id} and course_id = #{course_id}
+    </delete>
+
+</mapper>
