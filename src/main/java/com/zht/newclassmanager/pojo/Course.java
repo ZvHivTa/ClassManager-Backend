@@ -21,6 +21,5 @@ public class Course implements Serializable {
     private String course_time;
     private String course_place;
     private Integer course_capacity;
-
     private Integer course_chosen_number;
 }
