@@ -15,7 +15,6 @@ public interface StudentService {
 
     List<Course> showChosenCourses(Integer id);
 
-
     Integer chooseCourse(Integer student_id,Integer course_id);
 
     Integer removeChosenCourse(Integer student_id,Integer course_id);

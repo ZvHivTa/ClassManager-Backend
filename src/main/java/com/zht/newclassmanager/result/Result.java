@@ -36,4 +36,8 @@ public class  Result<T> implements Serializable {
         return result;
     }
 
+    // [建议] 增加这个 getter，FastJSON/Jackson 序列化时会自动生成 "success": true/false 字段
+    public boolean isSuccess() {
+        return this.code != null && this.code == 1;
+    }
 }

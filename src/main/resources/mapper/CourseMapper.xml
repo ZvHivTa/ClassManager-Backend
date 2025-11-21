@@ -157,8 +157,4 @@
                   #{course_capacity}
               )
     </insert>
-
-
-
-
 </mapper>

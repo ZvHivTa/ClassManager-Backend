@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.List;
 @Tag(name = "学生")
 @RestController
-@RequestMapping("/student")
+@RequestMapping("/api/student")
 public class StudentController {
     @Autowired
     StudentService studentService;
