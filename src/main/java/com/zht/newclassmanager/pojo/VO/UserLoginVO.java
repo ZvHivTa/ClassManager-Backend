@@ -12,6 +12,7 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class UserLoginVO implements Serializable {
 
     private Integer id;
@@ -29,6 +30,6 @@ public class UserLoginVO implements Serializable {
     private String avatar;
     private String college;
     private String major;
-    private String year;
+    private Integer year;
 
 }

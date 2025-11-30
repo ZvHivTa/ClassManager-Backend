@@ -5,9 +5,9 @@
 
 <mapper namespace="com.zht.newclassmanager.mapper.UserMapper">
     <select id="selectUser" resultType="com.zht.newclassmanager.pojo.User" parameterType="com.zht.newclassmanager.pojo.User">
-        select account,password,type
+        select id,password,type
         from user
-        where account = #{account} and password = #{password}
+        where id = #{id}
     </select>
 
 </mapper>

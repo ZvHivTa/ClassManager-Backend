@@ -11,7 +11,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 public class User implements Serializable {
-    private Integer account;
+    private Integer id;
     private String password;
     private Roletype roletype;
 }

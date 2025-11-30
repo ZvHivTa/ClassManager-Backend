@@ -46,7 +46,7 @@ public class JwtTokenManagerInterceptor implements HandlerInterceptor {
         try {
             log.info("jwt校验:{}", token);
             Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), token);
-            Integer empId = Integer.valueOf(claims.get(JwtClaimsConstant.EMP_ID).toString());
+            Integer empId = Integer.valueOf(claims.get(JwtClaimsConstant.ADMIN_ID).toString());
             log.info("当前员工id：", empId);
             //存储在ThreadLocal
             BaseContext.setCurrentId(empId);

@@ -1,4 +1,4 @@
-package com.zht.newclassmanager.contoller;
+package com.zht.newclassmanager.controller;
 
 
 import com.zht.newclassmanager.context.BaseContext;

@@ -5,7 +5,11 @@
 
 <mapper namespace="com.zht.newclassmanager.mapper.StudentMapper">
     <select id="selectById" parameterType="int" resultType="com.zht.newclassmanager.pojo.Student">
-        select student_id,student_name,student_grade,subject_name,college_name
+        select student_id AS id,
+               student_name AS name,
+               student_grade AS year,
+               subject_name AS major,
+               college_name AS college
         from student s
             join subject sub on s.subject_id = sub.subject_id
             join college c on sub.college_id = c.college_id

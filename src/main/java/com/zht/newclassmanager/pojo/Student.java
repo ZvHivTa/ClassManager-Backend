@@ -10,9 +10,9 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 public class Student implements Serializable {
-    private Integer student_id;
-    private String student_name;
-    private Integer student_grade;
-    private String subject_name;
-    private String college_name;
+    private Integer id;
+    private String name;
+    private Integer year;
+    private String major;
+    private String college;
 }

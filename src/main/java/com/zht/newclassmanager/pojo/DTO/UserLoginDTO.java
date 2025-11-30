@@ -9,6 +9,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 public class UserLoginDTO implements Serializable {
-    private Integer account;
+    private Integer id;
     private String password;
 }

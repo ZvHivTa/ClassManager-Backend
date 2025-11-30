@@ -1,10 +1,9 @@
-package com.zht.newclassmanager.contoller;
+package com.zht.newclassmanager.controller;
 
 
 import com.zht.newclassmanager.context.BaseContext;
 import com.zht.newclassmanager.pojo.Course;
 import com.zht.newclassmanager.pojo.Student;
-import com.zht.newclassmanager.pojo.User;
 import com.zht.newclassmanager.result.Result;
 import com.zht.newclassmanager.service.StudentService;
 

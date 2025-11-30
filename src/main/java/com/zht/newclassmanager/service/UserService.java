@@ -1,8 +1,10 @@
 package com.zht.newclassmanager.service;
 
+import com.zht.newclassmanager.pojo.DTO.UserLoginDTO;
 import com.zht.newclassmanager.pojo.User;
+import com.zht.newclassmanager.pojo.VO.UserLoginVO;
 
 
 public interface UserService {
-    User login(User user);
+    UserLoginVO login(UserLoginDTO userLoginDTO);
 }
