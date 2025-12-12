@@ -10,4 +10,9 @@
         where id = #{id}
     </select>
 
+    <update id="updatePassword" parameterType="com.zht.newclassmanager.pojo.User">
+        update user
+        set password = #{password}
+        where id = #{id}
+    </update>
 </mapper>

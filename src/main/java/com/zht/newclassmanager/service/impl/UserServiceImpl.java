@@ -7,6 +7,7 @@ import com.zht.newclassmanager.mapper.ManagerMapper;
 import com.zht.newclassmanager.mapper.StudentMapper;
 import com.zht.newclassmanager.mapper.UserMapper;
 import com.zht.newclassmanager.pojo.DTO.UserLoginDTO;
+import com.zht.newclassmanager.pojo.DTO.UserPasswordChangeDTO;
 import com.zht.newclassmanager.pojo.Manager;
 import com.zht.newclassmanager.pojo.Student;
 import com.zht.newclassmanager.pojo.User;
@@ -25,9 +26,8 @@ import com.zht.newclassmanager.enumration.Roletype;
 import java.util.HashMap;
 import java.util.Map;
 
-//Service注解，使spring框架在注入时得知此类是业务逻辑层的类
-@Transactional
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
         // 2. 校验账号是否存在
         if (user == null) {
-            throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
+            throw new AccountNotFoundException();
         }
 
         if (!passwordEncoder.matches(userLoginDTO.getPassword(), user.getPassword())) {
@@ -88,5 +88,32 @@ public class UserServiceImpl implements UserService {
             BeanUtils.copyProperties(student, vo);
         }
         return vo;
+    }
+
+    @Override
+    public void pwdChange(UserPasswordChangeDTO userPasswordChangeDTO) {
+        User user = new User();
+        user.setId(userPasswordChangeDTO.getId());
+        user.setPassword(passwordEncoder.encode(userPasswordChangeDTO.getOldPassword()));
+        User user1 = userMapper.selectUser(user);
+
+        if (user1 == null) {
+            throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
+        }
+
+        String newPassword = userPasswordChangeDTO.getNewPassword();
+
+        if (newPassword == null || newPassword.length() < 8 || newPassword.length() > 100) {
+            throw new PasswordErrorException("新密码长度必须在 8-100 位之间");
+        }
+
+        String encodedNewPassword = passwordEncoder.encode(newPassword);
+
+
+        User userToUpdate = new User();
+        userToUpdate.setId(userToUpdate.getId());
+        userToUpdate.setPassword(encodedNewPassword);
+
+        userMapper.updatePassword(userToUpdate);
     }
 }

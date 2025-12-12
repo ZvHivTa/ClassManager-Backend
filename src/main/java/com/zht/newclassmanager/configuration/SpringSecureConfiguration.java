@@ -1,14 +1,21 @@
 package com.zht.newclassmanager.configuration;
 
+import com.zht.newclassmanager.filter.JwtAuthenticationTokenFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SpringSecureConfiguration {
+
+    @Autowired
+    JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -39,7 +46,8 @@ public class SpringSecureConfiguration {
                             response.setStatus(401);
                             response.getWriter().write("{\"code\":0, \"msg\":\"未登录或Token失效\", \"data\":null, \"success\":false}");
                         })
-                );
+                )
+                .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
