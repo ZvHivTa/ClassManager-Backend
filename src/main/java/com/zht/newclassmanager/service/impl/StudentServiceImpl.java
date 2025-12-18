@@ -3,7 +3,9 @@ package com.zht.newclassmanager.service.impl;
 import com.zht.newclassmanager.mapper.CourseMapper;
 import com.zht.newclassmanager.mapper.StudentMapper;
 import com.zht.newclassmanager.pojo.Course;
+import com.zht.newclassmanager.pojo.DTO.CourseQueryDTO;
 import com.zht.newclassmanager.pojo.Student;
+import com.zht.newclassmanager.result.PageResult;
 import com.zht.newclassmanager.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Autowired
     CourseMapper courseMapper;
+
     @Override
     public Student showStudentInfo(Integer id) {
         return studentMapper.selectById(id);
@@ -31,10 +34,6 @@ public class StudentServiceImpl implements StudentService {
         return courseMapper.selectForSuggestion(student);
     }
 
-    @Override
-    public List<Course> showOptionalCourses() {
-        return courseMapper.selectForOptional(2);
-    }
 
     @Override
     public List<Course> showChosenCourses(Integer id) {
@@ -49,5 +48,19 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public Integer removeChosenCourse(Integer student_id, Integer course_id) {
         return studentMapper.deleteFromCourseSelected(student_id,course_id);
+    }
+
+    @Override
+    public PageResult searchCourses(CourseQueryDTO queryDTO) {
+        //TODO 课程条件+分页查询
+        List<Course> courses = courseMapper.searchCourses(queryDTO.getCollegeId(),
+                queryDTO.getTypeId(),
+                queryDTO.getYear(),
+                queryDTO.getKeyword());
+
+        PageResult pageResult = new PageResult();
+        pageResult.setRecords(courses);
+        pageResult.setTotal(courses.size());
+        return pageResult;
     }
 }

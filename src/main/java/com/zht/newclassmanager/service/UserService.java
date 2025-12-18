@@ -9,6 +9,7 @@ import com.zht.newclassmanager.pojo.VO.UserLoginVO;
 public interface UserService {
     UserLoginVO login(UserLoginDTO userLoginDTO);
 
-
     void pwdChange(UserPasswordChangeDTO userPasswordChangeDTO);
+
+
 }

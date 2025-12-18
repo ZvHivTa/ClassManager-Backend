@@ -11,15 +11,18 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 public class Course implements Serializable {
-    private Integer course_id;
-    private String course_name;
-    private String course_teacher;
-    private String course_type;
-    private Integer subject_id;
-    private Integer course_grade;
+    private Integer id;
+    private String name;
+    private String teacher;
+    private String type;
 
-    private String course_time;
-    private String course_place;
-    private Integer course_capacity;
-    private Integer course_chosen_number;
+    private Integer credit;
+
+    private String time;
+    private String place;
+    private Integer capacity;
+    private Integer chosenNumber;
+
+    private String subjectName;
+    private String collegeName;
 }

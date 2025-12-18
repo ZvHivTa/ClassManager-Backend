@@ -10,7 +10,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 public class College implements Serializable {
-    private Integer college_id;
-    private String college_name;
+    private Integer id;
+    private String name;
 
 }

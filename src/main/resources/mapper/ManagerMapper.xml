@@ -17,10 +17,12 @@
     </resultMap>
 
     <select id="selectById" resultType="com.zht.newclassmanager.pojo.Manager">
-        SELECT manager_id,manager_name,college_name
+        SELECT manager_id AS id,
+               manager_name AS name,
+               college_name AS college
         FROM manager m
              JOIN college c on m.college_id = c.college_id
-        WHERE manager_id = #{manager_id}
+        WHERE manager_id = #{id}
     </select>
 
     <select id="selectCourseSelectedById" resultMap="courseSelectedResultMap">

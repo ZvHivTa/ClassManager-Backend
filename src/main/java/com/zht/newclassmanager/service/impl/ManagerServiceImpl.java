@@ -82,7 +82,7 @@ public class ManagerServiceImpl implements ManagerService {
         Integer num = null;
         Course course = new Course();
         BeanUtils.copyProperties(updateCourseDTO,course);
-        num = courseMapper.selectFromCourseArrangment(course.getCourse_id());
+        num = courseMapper.selectFromCourseArrangment(course.getId());
         if(num==null){
             courseMapper.updateCourse(course);
             result = courseMapper.insertIntoCourseArrangment(course);
@@ -98,7 +98,7 @@ public class ManagerServiceImpl implements ManagerService {
         Course course = new Course();
         BeanUtils.copyProperties(insertCourseDTO,course);
         Integer num = null;
-        List<Course> courses = courseMapper.selectForManager(course.getCourse_id(),null,null);
+        List<Course> courses = courseMapper.selectForManager(course.getId(),null,null);
         num = courses.size();
         if(num==0){
             courseMapper.insertCourse(course);

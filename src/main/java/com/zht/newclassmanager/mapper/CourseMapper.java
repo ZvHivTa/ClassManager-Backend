@@ -11,8 +11,6 @@ import java.util.List;
 public interface CourseMapper {
     List<Course> selectForSuggestion(Student student);
 
-    List<Course> selectForOptional(Integer course_type);
-
     List<Course> selectForChosen(Integer student_id);
 
     List<Course> selectForManager(
@@ -37,5 +35,8 @@ public interface CourseMapper {
     Integer updateCourseArrangment(Course course);
 
 
-
+    List<Course> searchCourses(Integer collegeId,
+                               Integer typeId,
+                               Integer year,
+                               String keyword);
 }

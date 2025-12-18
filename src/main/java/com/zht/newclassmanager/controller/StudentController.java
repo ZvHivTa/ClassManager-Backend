@@ -3,7 +3,9 @@ package com.zht.newclassmanager.controller;
 
 import com.zht.newclassmanager.context.BaseContext;
 import com.zht.newclassmanager.pojo.Course;
+import com.zht.newclassmanager.pojo.DTO.CourseQueryDTO;
 import com.zht.newclassmanager.pojo.Student;
+import com.zht.newclassmanager.result.PageResult;
 import com.zht.newclassmanager.result.Result;
 import com.zht.newclassmanager.service.StudentService;
 
@@ -49,28 +51,34 @@ public class StudentController {
         return Result.success();
     }
 
-    @GetMapping("/optional")
-    @Operation(description = "查看可选课程")
-    public Result<List<Course>> show_optional_course_action(){
-        List<Course> courses = studentService.showOptionalCourses();
+    // 1. 超级查询接口 (原 /optional 的升级版)
+    // 用于课程大厅、选课列表。支持分页、搜索、筛选
+    @GetMapping("/search_courses")
+    @Operation(summary = "课程库检索", description = "支持分页和多条件筛选")
+    public Result<PageResult> searchCourses(CourseQueryDTO queryDTO) {
+        // 这里 Spring MVC 会自动把 URL 参数映射到 queryDTO 对象中
+        PageResult result = studentService.searchCourses(queryDTO);
+        return Result.success(result);
+    }
+
+    // 2. 我的课程
+    // 语义明确，专门查“我”的
+    @GetMapping("/my_courses")
+    @Operation(summary = "查看我的已选课程")
+    public Result<List<Course>> getMyCourses() {
+        Integer userId = BaseContext.getCurrentId();
+        List<Course> courses = studentService.showChosenCourses(userId);
         return Result.success(courses);
     }
 
-    @GetMapping("/chosen")
-    @Operation(description = "查看已选课程")
-    public Result<List<Course>> show_chosen_course_action(Integer user_id){
-        List<Course> courses = studentService.showChosenCourses(user_id);
+    // 3. 推荐课程
+    // 这是一个特殊的业务场景，单独保留
+    @GetMapping("/recommend")
+    @Operation(summary = "获取推荐课程")
+    public Result<List<Course>> getRecommendedCourses() {
+        Integer userId = BaseContext.getCurrentId();
+        List<Course> courses = studentService.showSuggestedCourses(userId);
         return Result.success(courses);
     }
-
-    @GetMapping("/suggestion")
-    @Operation(description = "查看推荐选课")
-    public Result<List<Course>> show_suggestion_course_action(){
-        //TODO:从ThreadLocal中获取信息
-        Integer user_account = BaseContext.getCurrentId();
-        List<Course> courses = studentService.showSuggestedCourses(user_account);
-        return Result.success(courses);
-    }
-
 
 }
