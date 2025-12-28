@@ -39,4 +39,7 @@ public interface CourseMapper {
                                Integer typeId,
                                Integer year,
                                String keyword);
+
+    Course getCourseById(Integer courseId);
+
 }

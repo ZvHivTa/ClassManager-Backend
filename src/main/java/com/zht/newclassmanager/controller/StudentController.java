@@ -4,6 +4,7 @@ package com.zht.newclassmanager.controller;
 import com.zht.newclassmanager.context.BaseContext;
 import com.zht.newclassmanager.pojo.Course;
 import com.zht.newclassmanager.pojo.DTO.CourseQueryDTO;
+import com.zht.newclassmanager.pojo.DTO.CourseSelectWithdrawDTO;
 import com.zht.newclassmanager.pojo.Student;
 import com.zht.newclassmanager.result.PageResult;
 import com.zht.newclassmanager.result.Result;
@@ -25,29 +26,29 @@ public class StudentController {
     StudentService studentService;
     @GetMapping("/personalinfo")
     @Operation(description = "获取学生个人信息")
-    public Result<Student> personal_info_action() throws IOException {
-        //TODO 从ThreadLocal中获取信息
+    public Result<Student> personalInfo() throws IOException {
+
         Integer account = BaseContext.getCurrentId();
         Student student = this.studentService.showStudentInfo(account);
 
         return Result.success(student);
     }
 
-    @PostMapping("/choose_course")
+    @PostMapping("/select")
     @Operation(description = "选课")
-    public Result choose_course_action(Integer course_id){
-        //TODO:从ThreadLocal中获取信息
+    public Result selectCourse(@RequestBody CourseSelectWithdrawDTO courseSelectDTO){
+
         Integer account = BaseContext.getCurrentId();
-        Integer result = studentService.chooseCourse(account,course_id);
+        Integer result = studentService.selectCourse(account,courseSelectDTO.getCourseId());
         return Result.success();
     }
 
-    @DeleteMapping("/remove_chosen_course")
+    @PostMapping("/withdraw")
     @Operation(description = "退选")
-    public Result remove_chosen_course_action(Integer course_id){
-        //TODO:从ThreadLocal中获取信息
+    public Result withdrawCourse(@RequestBody CourseSelectWithdrawDTO courseWithdrawDTO){
+
         Integer user_id = BaseContext.getCurrentId();
-        Integer result = studentService.removeChosenCourse(user_id,course_id);
+        Integer result = studentService.removeChosenCourse(user_id,courseWithdrawDTO.getCourseId());
         return Result.success();
     }
 

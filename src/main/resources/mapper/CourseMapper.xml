@@ -217,4 +217,27 @@
             </if>
         </where>
     </select>
+
+    <select id="getCourseById" resultType="com.zht.newclassmanager.pojo.Course">
+        SELECT
+            c.course_id       AS id,
+            c.course_name     AS name,
+            c.course_teacher  AS teacher,
+            c.course_type     AS type,
+            c.course_credit   AS credit,
+            c.course_time     AS time,
+        c.course_place    AS place,
+        c.course_capacity AS capacity,
+        col.college_name  AS collegeName,
+        s.subject_name    AS subjectName,
+
+        -- 子查询计算已选人数
+        (SELECT COUNT(*) FROM `course_selected` cs WHERE cs.course_id = c.course_id) as chosenNumber
+
+        FROM `course` c
+            LEFT OUTER JOIN `college` col ON c.college_id = col.college_id
+            LEFT OUTER JOIN `subject` s ON c.subject_id = s.subject_id
+        WHERE
+            c.course_id = #{courseId}
+    </select>
 </mapper>

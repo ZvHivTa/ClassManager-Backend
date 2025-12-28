@@ -1,5 +1,11 @@
 package com.zht.newclassmanager.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.zht.newclassmanager.constant.MessageConstant;
+import com.zht.newclassmanager.exception.FailedToSelectCourseException;
+import com.zht.newclassmanager.exception.FailedToWithdrawCourseException;
+import com.zht.newclassmanager.exception.PasswordErrorException;
 import com.zht.newclassmanager.mapper.CourseMapper;
 import com.zht.newclassmanager.mapper.StudentMapper;
 import com.zht.newclassmanager.pojo.Course;
@@ -41,26 +47,38 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public Integer chooseCourse(Integer student_id, Integer course_id) {
-        return studentMapper.insertIntoCourseSelected(student_id,course_id);
+    public Integer selectCourse(Integer student_id, Integer course_id) {
+        Course course = courseMapper.getCourseById(course_id);
+        if(course == null){
+            throw new FailedToSelectCourseException(MessageConstant.COURSE_NOT_EXIST);
+        }
+        if(course.getCapacity() <= course.getChosenNumber()){
+            throw new FailedToSelectCourseException(MessageConstant.COURSE_CAPACITY_IS_FULL);
+        }
+        return studentMapper.insertIntoCourseSelected(student_id, course_id);
     }
 
     @Override
     public Integer removeChosenCourse(Integer student_id, Integer course_id) {
+        Course course = courseMapper.getCourseById(course_id);
+        if(course == null){
+            throw new FailedToWithdrawCourseException(MessageConstant.COURSE_NOT_EXIST);
+        }
         return studentMapper.deleteFromCourseSelected(student_id,course_id);
     }
 
     @Override
     public PageResult searchCourses(CourseQueryDTO queryDTO) {
-        //TODO 课程条件+分页查询
+        PageHelper.startPage(queryDTO.getPage(),queryDTO.getPageSize());
+
         List<Course> courses = courseMapper.searchCourses(queryDTO.getCollegeId(),
                 queryDTO.getTypeId(),
                 queryDTO.getYear(),
                 queryDTO.getKeyword());
-
+        PageInfo<Course> pageInfo = new PageInfo<>(courses);
         PageResult pageResult = new PageResult();
-        pageResult.setRecords(courses);
-        pageResult.setTotal(courses.size());
+        pageResult.setRecords(pageInfo.getList());
+        pageResult.setTotal(pageInfo.getTotal());
         return pageResult;
     }
 }
