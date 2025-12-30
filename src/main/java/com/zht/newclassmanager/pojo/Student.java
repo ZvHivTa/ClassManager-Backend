@@ -13,6 +13,8 @@ public class Student implements Serializable {
     private Integer id;
     private String name;
     private Integer year;
-    private String major;
-    private String college;
+    private Integer subjectId;
+    private Integer collegeId;
+    private String subjectName;
+    private String collegeName;
 }

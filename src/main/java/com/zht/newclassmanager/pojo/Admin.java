@@ -9,7 +9,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Manager implements Serializable {
+public class Admin implements Serializable {
     private Integer id;
     private String name;
     private String college;

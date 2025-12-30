@@ -17,12 +17,53 @@
     </select>
 
     <insert id="insertIntoCourseSelected">
-        insert into course_selected values (#{student_id},#{course_id})
+        insert into course_selected values (#{studentId},#{courseId})
     </insert>
 
     <delete id="deleteFromCourseSelected">
         delete from course_selected
-        where student_id = #{student_id} and course_id = #{course_id}
+        where student_id = #{studentId} and course_id = #{courseId}
     </delete>
+
+    <select id="searchStudent" resultType="com.zht.newclassmanager.pojo.Student">
+        SELECT
+            s.student_id AS id,
+            s.student_name AS name,
+            s.student_grade AS year,
+            s.subject_id AS subjectId,
+            s.college_id AS collegeId,
+            sub.subject_name AS subjectName,
+            c.college_name AS collegeName
+        from student s
+             join subject sub on s.subject_id = sub.subject_id
+             join college c on sub.college_id = c.college_id
+        <where>
+            <if test="collegeId != null">
+                c.college_id = #{collegeId}
+            </if>
+            <if test="subjectId != null">
+                sub.subjectId = #{subjectId}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                <bind name="pattern" value="'%' + keyword + '%'"/>
+                AND (
+                s.student_name LIKE #{pattern}
+                OR
+                s.student_id LIKE #{pattern}
+                )
+            </if>
+        </where>
+    </select>
+
+    <select id="searchSelectedCourseRecord" resultType="com.zht.newclassmanager.pojo.CourseSelected">
+        SELECT
+            student_id AS studentId,
+            course_id AS courseId
+        FROM `course_selected`
+        WHERE
+            student_id = #{studentId}
+        AND
+            course_id = #{courseId}
+    </select>
 
 </mapper>

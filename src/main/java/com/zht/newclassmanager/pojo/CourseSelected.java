@@ -10,6 +10,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 public class CourseSelected implements Serializable {
-    private Integer student_id;
-    private Integer course_id;
+    private Integer studentId;
+    private Integer courseId;
 }

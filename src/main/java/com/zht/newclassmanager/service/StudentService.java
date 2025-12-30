@@ -11,7 +11,7 @@ public interface StudentService {
 
     Student showStudentInfo(Integer id);
 
-    List<Course> showSuggestedCourses(Integer id);
+    List<Course> getRecommendedCourses(Integer id);
 
     List<Course> showChosenCourses(Integer id);
 

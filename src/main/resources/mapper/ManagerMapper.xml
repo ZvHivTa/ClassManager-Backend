@@ -16,7 +16,7 @@
         </association>
     </resultMap>
 
-    <select id="selectById" resultType="com.zht.newclassmanager.pojo.Manager">
+    <select id="selectById" resultType="com.zht.newclassmanager.pojo.Admin">
         SELECT manager_id AS id,
                manager_name AS name,
                college_name AS college

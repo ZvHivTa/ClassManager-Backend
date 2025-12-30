@@ -8,7 +8,7 @@ import com.zht.newclassmanager.mapper.StudentMapper;
 import com.zht.newclassmanager.mapper.UserMapper;
 import com.zht.newclassmanager.pojo.DTO.UserLoginDTO;
 import com.zht.newclassmanager.pojo.DTO.UserPasswordChangeDTO;
-import com.zht.newclassmanager.pojo.Manager;
+import com.zht.newclassmanager.pojo.Admin;
 import com.zht.newclassmanager.pojo.Student;
 import com.zht.newclassmanager.pojo.User;
 import com.zht.newclassmanager.properties.JwtProperties;
@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
 
         // 6. 根据角色补充详细信息
         if (user.getRoletype() == Roletype.ADMIN) {
-            Manager manager = managerMapper.selectById(user.getId());
+            Admin manager = managerMapper.selectById(user.getId());
             BeanUtils.copyProperties(manager, vo); // 假设 VO 兼容 Manager 字段
         } else if (user.getRoletype() == Roletype.STUDENT) {
             Student student = studentMapper.selectById(user.getId());
@@ -111,7 +111,7 @@ public class UserServiceImpl implements UserService {
 
 
         User userToUpdate = new User();
-        userToUpdate.setId(userToUpdate.getId());
+        userToUpdate.setId(user.getId());
         userToUpdate.setPassword(encodedNewPassword);
 
         userMapper.updatePassword(userToUpdate);

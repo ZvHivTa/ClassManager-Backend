@@ -35,9 +35,8 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<Course> showSuggestedCourses(Integer id) {
-        Student student = studentMapper.selectById(id);
-        return courseMapper.selectForSuggestion(student);
+    public List<Course> getRecommendedCourses(Integer id) {
+        return courseMapper.getRecommendedCourses(id);
     }
 
 

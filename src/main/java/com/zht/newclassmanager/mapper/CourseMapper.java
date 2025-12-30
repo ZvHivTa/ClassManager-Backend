@@ -1,6 +1,7 @@
 package com.zht.newclassmanager.mapper;
 
 import com.zht.newclassmanager.pojo.Course;
+import com.zht.newclassmanager.pojo.CourseSelected;
 import com.zht.newclassmanager.pojo.Student;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Mapper;
@@ -9,7 +10,7 @@ import java.util.List;
 
 @Mapper
 public interface CourseMapper {
-    List<Course> selectForSuggestion(Student student);
+    List<Course> getRecommendedCourses(Integer id);
 
     List<Course> selectForChosen(Integer student_id);
 
@@ -40,6 +41,13 @@ public interface CourseMapper {
                                Integer year,
                                String keyword);
 
+    List<Course> searchCoursesForManager(Integer collegeId,
+                               Integer typeId,
+                               Integer year,
+                               String keyword);
+
     Course getCourseById(Integer courseId);
 
+
+    List<Course> selectCourseSelectedByStudentId(Integer student_id);
 }

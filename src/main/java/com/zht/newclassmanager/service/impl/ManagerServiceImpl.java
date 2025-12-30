@@ -1,10 +1,17 @@
 package com.zht.newclassmanager.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.zht.newclassmanager.constant.MessageConstant;
+import com.zht.newclassmanager.exception.AlreadySelectThisCourseException;
+import com.zht.newclassmanager.exception.NoSuchSelectedRecordException;
 import com.zht.newclassmanager.pojo.*;
+import com.zht.newclassmanager.pojo.DTO.CourseQueryDTO;
 import com.zht.newclassmanager.pojo.DTO.InsertCourseDTO;
-import com.zht.newclassmanager.pojo.DTO.SearchCourseDTO;
+import com.zht.newclassmanager.pojo.DTO.SearchStudentDTO;
 import com.zht.newclassmanager.pojo.DTO.UpdateCourseDTO;
 import com.zht.newclassmanager.pojo.VO.CourseSelectedVO;
+import com.zht.newclassmanager.result.PageResult;
 import com.zht.newclassmanager.service.ManagerService;
 import com.zht.newclassmanager.mapper.*;
 import org.springframework.beans.BeanUtils;
@@ -31,39 +38,48 @@ public class ManagerServiceImpl implements ManagerService {
     @Autowired
     StudentMapper studentMapper;
     @Override
-    public Manager showManagerInfo(Integer manager_id) {
+    public Admin showManagerInfo(Integer manager_id) {
         return managerMapper.selectById(manager_id);
     }
 
     @Override
-    public List<CourseSelectedVO> showCourseSelected(Integer student_id, Integer course_id) {
-        List<CourseSelected> relations = managerMapper.selectCourseSelectedById(student_id, course_id);
-        List<CourseSelectedVO> result = new ArrayList<>();
-        relations.forEach(item -> {
-            CourseSelectedVO courseSelectedVO = new CourseSelectedVO();
-            BeanUtils.copyProperties(courseSelectedVO,item);
-            result.add(courseSelectedVO);
-        });
-        return result;
+    public List<Course> showCourseSelected(Integer student_id) {
+        List<Course> courses = courseMapper.selectCourseSelectedByStudentId(student_id);
+        return courses;
     }
 
     @Override
     public Integer removeSelectedCourse(Integer student_id, Integer course_id) {
+        CourseSelected courseSelected = studentMapper.searchSelectedCourseRecord(student_id,course_id);
+        if(courseSelected == null){
+            throw new NoSuchSelectedRecordException(MessageConstant.NO_SUCH_SELECT_RECORD);
+        }
         return managerMapper.removeSelectedCourse(student_id,course_id);
     }
 
     @Override
     public Integer chooseCourseForStudent(Integer student_id, Integer course_id) {
+        CourseSelected courseSelected = studentMapper.searchSelectedCourseRecord(student_id,course_id);
+        if(courseSelected != null){
+            throw new AlreadySelectThisCourseException(MessageConstant.ALREADY_SELECT_THIS_COURSE);
+        }
         return studentMapper.insertIntoCourseSelected(student_id,course_id);
     }
 
     @Override
-    public List<Course> searchCourse(SearchCourseDTO searchCourseDTO) {
-        Integer course_id = searchCourseDTO.getCourse_id();
-        String course_name = searchCourseDTO.getCourse_name();
-        String course_teacher = searchCourseDTO.getCourse_teacher();
+    public PageResult searchCourse(CourseQueryDTO queryDTO) {
 
-        return courseMapper.selectForManager(course_id,course_name,course_teacher);
+        PageHelper.startPage(queryDTO.getPage(),queryDTO.getPageSize());
+
+        List<Course> courses = courseMapper.searchCoursesForManager(queryDTO.getCollegeId(),
+                queryDTO.getTypeId(),
+                queryDTO.getYear(),
+                queryDTO.getKeyword());
+        PageInfo<Course> pageInfo = new PageInfo<>(courses);
+        PageResult pageResult = new PageResult();
+        pageResult.setRecords(pageInfo.getList());
+        pageResult.setTotal(pageInfo.getTotal());
+        return pageResult;
     }
 
     @Override
@@ -79,17 +95,9 @@ public class ManagerServiceImpl implements ManagerService {
 
     public Integer updateCourse(UpdateCourseDTO updateCourseDTO) {
         Integer result = 0;
-        Integer num = null;
         Course course = new Course();
         BeanUtils.copyProperties(updateCourseDTO,course);
-        num = courseMapper.selectFromCourseArrangment(course.getId());
-        if(num==null){
-            courseMapper.updateCourse(course);
-            result = courseMapper.insertIntoCourseArrangment(course);
-        }else{
-            courseMapper.updateCourse(course);
-            result = courseMapper.updateCourseArrangment(course);
-        }
+        courseMapper.updateCourse(course);
         return result;
     }
 
@@ -97,13 +105,31 @@ public class ManagerServiceImpl implements ManagerService {
     public Integer insertCourse(InsertCourseDTO insertCourseDTO){
         Course course = new Course();
         BeanUtils.copyProperties(insertCourseDTO,course);
-        Integer num = null;
-        List<Course> courses = courseMapper.selectForManager(course.getId(),null,null);
-        num = courses.size();
-        if(num==0){
-            courseMapper.insertCourse(course);
-            num = courseMapper.insertIntoCourseArrangment(course);
-        }
-        return num;
+        course.setSubjectId(course.getCollegeId()*100+1);
+        courseMapper.insertCourse(course);
+        return 0;
+    }
+
+    @Override
+    public PageResult searchStudent(SearchStudentDTO searchStudentDTO) {
+        PageHelper.startPage(searchStudentDTO.getPage(),searchStudentDTO.getPageSize());
+
+        List<Student> students = studentMapper.searchStudent(
+                searchStudentDTO.getCollegeId(),
+                searchStudentDTO.getSubjectId(),
+                searchStudentDTO.getKeyword()
+        );
+
+        PageInfo<Student> pageInfo = new PageInfo<>(students);
+        PageResult pageResult = new PageResult();
+        pageResult.setRecords(pageInfo.getList());
+        pageResult.setTotal(pageInfo.getTotal());
+        return pageResult;
+    }
+
+    @Override
+    public Course searchCourseById(Integer courseId) {
+        Course course = courseMapper.getCourseById(courseId);
+        return course;
     }
 }

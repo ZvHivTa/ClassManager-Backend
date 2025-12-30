@@ -6,34 +6,38 @@
 <mapper namespace="com.zht.newclassmanager.mapper.CourseMapper">
 
     <!-- 1. 推荐课程查询 -->
-    <select id="selectForSuggestion" parameterType="com.zht.newclassmanager.pojo.Student" resultType="com.zht.newclassmanager.pojo.Course">
+    <select id="getRecommendedCourses" parameterType="int" resultType="com.zht.newclassmanager.pojo.Course">
         SELECT
-            ANY_VALUE(c.course_id)       AS id,
-            ANY_VALUE(c.course_name)     AS name,
-            ANY_VALUE(c.course_teacher)  AS teacher,
-            ANY_VALUE(c.course_type)     AS type,
-            ANY_VALUE(c.course_time)     AS time,
-            ANY_VALUE(c.course_place)    AS place,
-            ANY_VALUE(c.course_capacity) AS capacity,
-            COUNT(cs.course_id)          AS chosenNumber
+            c.course_id       AS id,
+            c.course_name     AS name,
+            c.course_teacher  AS teacher,
+            c.course_type     AS type,
+            c.course_credit   AS credit,
+            c.course_time     AS time,
+            c.course_place    AS place,
+            c.course_capacity AS capacity,
+
+            (SELECT COUNT(*) FROM `course_selected` cs WHERE cs.course_id = c.course_id) AS chosenNumber
+
         FROM `course` c
-            join `student` s on s.student_grade = c.course_grade and s.subject_id = c.subject_id
-            left outer join `course_arrangement` ca on c.course_id = ca.course_id
-            left outer join `course_selected` cs on c.course_id = cs.course_id
-        WHERE s.student_id = #{student_id}
-        GROUP BY c.course_id
+            -- 关联学生表：找到与该学生 "同专业" 且 "同年级" 的课
+            JOIN `student` s ON s.student_grade = c.course_year AND s.subject_id = c.subject_id
+
+        WHERE s.student_id = #{studentId}
+          AND c.course_type != 1
     </select>
 
     <!-- 2. 可选课程查询 -->
     <select id="selectForOptional" parameterType="int" resultType="com.zht.newclassmanager.pojo.Course">
         SELECT
-            ANY_VALUE(c.course_id)       AS id,
-            ANY_VALUE(c.course_name)     AS name,
-            ANY_VALUE(c.course_teacher)  AS teacher,
-            ANY_VALUE(c.course_type)     AS type,
-            ANY_VALUE(c.course_time)     AS time,
-            ANY_VALUE(c.course_place)    AS place,
-            ANY_VALUE(c.course_capacity) AS capacity,
+            c.course_id       AS id,
+            c.course_name     AS name,
+            c.course_teacher  AS teacher,
+            c.course_type     AS type,
+            c.course_credit   AS credit,
+            c.course_time     AS time,
+            c.course_place    AS place,
+            c.course_capacity AS capacity,
             COUNT(cs.course_id)          AS chosenNumber
         FROM `course` c
             left outer join `course_arrangement` ca on c.course_id = ca.course_id
@@ -45,13 +49,14 @@
     <!-- 3. 已选课程查询 -->
     <select id="selectForChosen" parameterType="int" resultType="com.zht.newclassmanager.pojo.Course">
         SELECT
-            ANY_VALUE(c.course_id)       AS id,
-            ANY_VALUE(c.course_name)     AS name,
-            ANY_VALUE(c.course_teacher)  AS teacher,
-            ANY_VALUE(c.course_type)     AS type,
-            ANY_VALUE(c.course_time)     AS time,
-            ANY_VALUE(c.course_place)    AS place,
-            ANY_VALUE(c.course_capacity) AS capacity,
+            c.course_id       AS id,
+            c.course_name     AS name,
+            c.course_teacher  AS teacher,
+            c.course_type     AS type,
+            c.course_credit   AS credit,
+            c.course_time     AS time,
+            c.course_place    AS place,
+            c.course_capacity AS capacity,
             -- student_id 在你的新POJO里没有，这里可能会被忽略，但为了SQL完整性先留着
             ANY_VALUE(s.student_id)      AS student_id,
             COUNT(cs.course_id)          AS chosenNumber
@@ -63,30 +68,48 @@
     </select>
 
     <!-- 4. 管理员查询 (注意：假设这里传入的参数也是 Course 对象，所以 test 和 #{} 都要改) -->
-    <select id="selectForManager" resultType="com.zht.newclassmanager.pojo.Course">
+    <select id="searchCoursesForManager" resultType="com.zht.newclassmanager.pojo.Course">
         SELECT
         c.course_id       AS id,
         c.course_name     AS name,
         c.course_teacher  AS teacher,
         c.course_type     AS type,
+        c.course_credit   AS credit,
         c.course_time     AS time,
         c.course_place    AS place,
-        c.course_capacity AS capacity
-        -- grade 和 subject_id 如果 POJO 没定义会被忽略
-        FROM
-        course c
-        LEFT JOIN course_arrangement cs ON c.course_id = cs.course_id
+        c.course_capacity AS capacity,
+
+        -- 这里添加关联表的字段映射
+        col.college_id AS collegeId,
+        col.college_name  AS collegeName,
+        s.subject_name    AS subjectName,
+
+        -- 子查询计算已选人数
+        (SELECT COUNT(*) FROM `course_selected` cs WHERE cs.course_id = c.course_id) as chosenNumber
+
+        FROM `course` c
+        LEFT OUTER JOIN `college` col ON c.college_id = col.college_id
+        LEFT OUTER JOIN `subject` s ON c.subject_id = s.subject_id
+
         <where>
-            <if test="id != null">
-                and c.course_id = #{id}
+            <!-- 这里的参数来自 DTO (CourseQueryDTO)，不是 Course 对象，所以保持 parameter 的名字 -->
+            <if test="collegeId != null">
+                AND c.college_id = #{collegeId}
             </if>
-            <if test="name != null">
-                <bind name="course_name_bind" value="'%'+name+'%'"/>
-                and course_name like #{course_name_bind}
+            <if test="typeId != null">
+                AND c.course_type = #{typeId}
             </if>
-            <if test="teacher != null">
-                <bind name="course_teacher_bind" value="'%'+teacher+'%'"/>
-                and course_teacher like #{course_teacher_bind}
+            <if test="year != null">
+                AND c.course_year = #{year}
+            </if>
+
+            <if test="keyword != null and keyword != ''">
+                <bind name="pattern" value="'%' + keyword + '%'"/>
+                AND (
+                c.course_name LIKE #{pattern}
+                OR
+                c.course_teacher LIKE #{pattern}
+                )
             </if>
         </where>
     </select>
@@ -100,7 +123,7 @@
     <!-- 5. 更新课程 (注意：SET 里的字段引用必须改成新的 Java 属性名) -->
     <update id="updateCourse">
         UPDATE course c
-        <trim prefix="SET" suffixOverrides=",">
+        <set>
             <if test="name != null">
                 c.course_name = #{name},
             </if>
@@ -110,32 +133,99 @@
             <if test="type != null">
                 c.course_type = #{type},
             </if>
-            <!-- 注意：如果 POJO 里没有 subjectId 和 grade 属性，下面这两段会报错，建议确认 POJO 是否有 getter -->
-            <!-- 假设你没加这两个字段，我先注释掉，如果有请取消注释并确保名字对上 -->
-            <!--
-            <if test="subjectId != null">
-                c.subject_id = #{subjectId},
+            <if test="collegeId != null">
+                c.college_id = #{collegeId},
             </if>
-            <if test="grade != null">
-                c.course_grade = #{grade},
+            <if test="credit != null">
+                c.course_credit = #{credit},
             </if>
-            -->
-        </trim>
+            <if test="time != null">
+                c.course_time = #{time},
+            </if>
+            <if test="place != null">
+                c.course_place = #{place},
+            </if>
+            <if test="capacity != null">
+                c.course_capacity = #{capacity},
+            </if>
+        </set>
         WHERE c.course_id = #{id}
     </update>
 
     <!-- 6. 插入课程 (注意：#{} 里的名字必须改) -->
-    <insert id="insertCourse" parameterType="com.zht.newclassmanager.pojo.Course">
+    <insert id="insertCourse" parameterType="com.zht.newclassmanager.pojo.Course" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO course
-        values(
-                  #{id},
-                  #{name},
-                  #{teacher},
-                  #{type},
-                  #{credit}
-                  -- 注意：原本有 subject_id，如果 POJO 没这个属性，这行 SQL 参数就不够了
-                  -- 请确保 values 的数量和顺序与数据库列一致
-              )
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <!-- 1. 只有当属性不为 null 时，才拼接对应的数据库列名 -->
+            <if test="id != null">
+                course_id,
+            </if>
+            <if test="name != null">
+                course_name,
+            </if>
+            <if test="teacher != null">
+                course_teacher,
+            </if>
+            <if test="credit != null">
+                course_credit,
+            </if>
+            <if test="time != null">
+                course_time,
+            </if>
+            <if test="place != null">
+                course_place,
+            </if>
+            <if test="capacity != null">
+                course_capacity,
+            </if>
+            <if test="type != null">
+                course_type,
+            </if>
+            <if test="year != null">
+                course_year,
+            </if>
+            <if test="collegeId != null">
+                college_id,
+            </if>
+            <if test="subjectId != null">
+                subject_id,
+            </if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="teacher != null">
+                #{teacher},
+            </if>
+            <if test="credit != null">
+                #{credit},
+            </if>
+            <if test="time != null">
+                #{time},
+            </if>
+            <if test="place != null">
+                #{place},
+            </if>
+            <if test="capacity != null">
+                #{capacity},
+            </if>
+            <if test="type != null">
+                #{type},
+            </if>
+            <if test="year != null">
+                #{year},
+            </if>
+            <if test="collegeId != null">
+                #{collegeId},
+            </if>
+            <if test="subjectId != null">
+                #{subjectId},
+            </if>
+        </trim>
     </insert>
 
     <!-- 课程安排部分的参数名通常是 Map 或者具体参数，暂且保持原样，如果有问题请改为 #{time} 等 -->
@@ -226,11 +316,10 @@
             c.course_type     AS type,
             c.course_credit   AS credit,
             c.course_time     AS time,
-        c.course_place    AS place,
-        c.course_capacity AS capacity,
-        col.college_name  AS collegeName,
-        s.subject_name    AS subjectName,
-
+            c.course_place    AS place,
+            c.course_capacity AS capacity,
+            col.college_name  AS collegeName,
+            s.subject_name    AS subjectName,
         -- 子查询计算已选人数
         (SELECT COUNT(*) FROM `course_selected` cs WHERE cs.course_id = c.course_id) as chosenNumber
 
@@ -239,5 +328,26 @@
             LEFT OUTER JOIN `subject` s ON c.subject_id = s.subject_id
         WHERE
             c.course_id = #{courseId}
+    </select>
+
+    <select id="selectCourseSelectedByStudentId" resultType="com.zht.newclassmanager.pojo.Course">
+        SELECT
+            c.course_id       AS id,
+            c.course_name     AS name,
+            c.course_teacher  AS teacher,
+            c.course_type     AS type,
+            c.course_credit   AS credit,
+            c.course_time     AS time,
+            c.course_place    AS place,
+            c.course_capacity AS capacity,
+            col.college_name  AS collegeName
+
+        FROM `course_selected` cs
+            -- 1. 先 JOIN course 表 (定义别名 c)
+            LEFT OUTER JOIN `course` c ON cs.course_id = c.course_id
+            -- 2. 再 JOIN college 表 (现在可以使用 c.college_id 了)
+            LEFT OUTER JOIN `college` col ON c.college_id = col.college_id
+        WHERE
+            cs.student_id = #{studentId}
     </select>
 </mapper>

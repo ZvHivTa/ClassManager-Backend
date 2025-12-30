@@ -78,7 +78,7 @@ public class StudentController {
     @Operation(summary = "获取推荐课程")
     public Result<List<Course>> getRecommendedCourses() {
         Integer userId = BaseContext.getCurrentId();
-        List<Course> courses = studentService.showSuggestedCourses(userId);
+        List<Course> courses = studentService.getRecommendedCourses(userId);
         return Result.success(courses);
     }
 

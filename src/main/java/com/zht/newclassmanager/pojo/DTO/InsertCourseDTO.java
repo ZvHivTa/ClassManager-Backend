@@ -9,14 +9,18 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+//{"name":"高分子化学","teacher":"门捷列夫","time":"2025-09-03 14:00:00","place":"H-102","credit":2,"capacity":50,"type":2,"year":3,"collegeId":"8"}
 public class InsertCourseDTO implements Serializable {
-    private Integer course_id;
-    private String course_name;
-    private String course_teacher;
-    private String course_type;
-    private Integer subject_id;
-    private Integer course_grade;
-    private String course_time;
-    private String course_place;
-    private Integer course_capacity;
+    private Integer id;
+    private String name;
+    private String teacher;
+    private String time;
+    private String place;
+
+    private Float credit;
+    private String type;
+    private Integer year;
+    private Integer collegeId;
+
+    private Integer capacity;
 }

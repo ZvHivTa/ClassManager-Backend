@@ -16,13 +16,16 @@ public class Course implements Serializable {
     private String teacher;
     private String type;
 
-    private Integer credit;
+    private Float credit;
 
     private String time;
     private String place;
     private Integer capacity;
     private Integer chosenNumber;
+    private Integer year;
 
+    private Integer subjectId;
     private String subjectName;
+    private Integer collegeId;
     private String collegeName;
 }
